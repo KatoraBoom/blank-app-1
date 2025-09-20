@@ -1,15 +1,20 @@
 import streamlit as st
+
+# 🚨 MUST be the first Streamlit call, and only once
+st.set_page_config(
+    page_title="📊 Debt Dynamics Dashboard",
+    page_icon="📊",
+    layout="wide"
+)
+
+# now it's safe to call other Streamlit functions
+st.title("📊 Debt Dynamics Dashboard")
+st.markdown("An interactive exploration of debt, GDP, and leverage over time.")
+
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-
-# 🚨 MUST come first before any st.title() or st.markdown()
-st.set_page_config(page_title="Debt Dynamics Dashboard", page_icon="📊", layout="wide")
-
-st.title("📊 Debt Dynamics Dashboard")
-st.markdown("An interactive exploration of debt, GDP, and leverage over time.")
-
 
 import pandas as pd
 import streamlit as st
