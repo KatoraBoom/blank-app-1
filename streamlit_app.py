@@ -7,31 +7,29 @@ st.set_page_config(
     layout="wide"
 )
 
-# now it's safe to call other Streamlit functions
+# Title + subtitle
 st.title("📊 Debt Dynamics Dashboard")
 st.markdown("An interactive exploration of debt, GDP, and leverage over time.")
 
+# Now import the rest
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
-import pandas as pd
-import streamlit as st
 
-st.set_page_config(page_title="Debt Dashboard")
-
+# ---------- Load Data (embedded dataset, no CSV needed)
 @st.cache_data
 def load_data():
     data = {
         "Year": list(range(2010, 2021)),
-        "GDP": [500,520,540,560,580,600,620,640,660,680,700],
-        "ExternalDebt": [50,60,70,80,90,100,110,120,130,140,150],
-        "DomesticDebt": [100,105,110,115,120,125,130,135,140,145,150],
+        "GDP": [500, 520, 540, 560, 580, 600, 620, 640, 660, 680, 700],
+        "ExternalDebt": [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
+        "DomesticDebt": [100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150],
     }
     df = pd.DataFrame(data)
     df["TotalDebt"] = df["ExternalDebt"] + df["DomesticDebt"]
-    df["DebtToGDP"] = (df["TotalDebt"]/df["GDP"]).round(3)
+    df["DebtToGDP"] = (df["TotalDebt"] / df["GDP"]).round(3)
     return df
 
 df = load_data()
@@ -55,21 +53,25 @@ show_annotations = st.sidebar.checkbox("Annotate notable points", value=True)
 
 df = df[(df["Year"] >= year_range[0]) & (df["Year"] <= year_range[1])].copy()
 
+
 # ---------- Top KPIs
 latest = df.sort_values("Year").iloc[-1]
 prev = df.sort_values("Year").iloc[-2] if len(df) > 1 else latest
 delta_debt = latest["TotalDebt"] - prev["TotalDebt"]
 delta_ratio = latest["DebtToGDP"] - prev["DebtToGDP"]
+
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Latest Year", int(latest["Year"]))
 col2.metric("Total Debt (bn)", f"{latest['TotalDebt']:.0f}", f"{delta_debt:+.0f} vs prev")
 col3.metric("Debt-to-GDP", f"{latest['DebtToGDP']:.2f}", f"{delta_ratio:+.02f}")
 col4.metric("GDP (bn)", f"{latest['GDP']:.0f}")
 
+
 # ---------- Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["Overview", "Composition", "Changes", "Trends", "Insights"]
 )
+
 
 with tab1:
     st.subheader("Treemap of Total Debt and Debt-to-GDP Ratio")
@@ -97,7 +99,6 @@ with tab1:
         color_continuous_scale="Plasma",
     )
     if show_annotations:
-        # annotate the latest year
         last = df.sort_values("Year").iloc[-1]
         fig_scatter.add_annotation(
             x=last["GDP"],
@@ -108,6 +109,7 @@ with tab1:
         )
     fig_scatter.update_layout(height=380, margin=dict(l=0, r=0, t=0, b=0))
     st.plotly_chart(fig_scatter, use_container_width=True)
+
 
 with tab2:
     st.subheader("Debt Composition")
@@ -134,6 +136,7 @@ with tab2:
         yaxis_title=yaxis_title, height=400, margin=dict(l=0, r=0, t=0, b=0)
     )
     st.plotly_chart(fig_comp, use_container_width=True)
+
 
 with tab3:
     st.subheader("Year-over-Year Changes")
@@ -167,6 +170,7 @@ with tab3:
     )
     st.plotly_chart(fig_wf, use_container_width=True)
 
+
 with tab4:
     st.subheader("Debt Dynamics Over Time")
     fig_line = go.Figure()
@@ -194,19 +198,21 @@ with tab4:
     )
     st.plotly_chart(fig_line, use_container_width=True)
 
+
 with tab5:
     st.markdown(
-        '''
+        """
         ### What to notice
         - **Steady leverage:** Total debt rises about 15bn per year; the **Debt-to-GDP** ratio edges up from ~0.30 to ~0.43, indicating debt growing slightly faster than GDP.
         - **Mix shift:** Domestic debt remains the larger share, but external debt grows faster, narrowing the gap.
         - **Efficiency lens:** Use the scatter (Debt vs GDP) to check whether higher debt years also coincide with stronger GDP; the upward slope suggests co-movement, but ratio bubbles reveal leverage risk.
         - **Volatility check:** Turn on *3-year MAs* to smooth noise and spot medium-term trend breaks.
         - **Scenario analysis:** Adjust the year range to focus on sub-periods (e.g., 2013–2016) and see how composition and growth dynamics change.
-        '''
+        """
     )
     st.info(
         "Tip: All charts react to the sidebar filters. Hover on points/areas for granular tooltips, and use the legend to toggle series."
     )
+
 
 st.caption("Built with Streamlit + Plotly | Data is illustrative.")
