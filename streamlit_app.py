@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
+# 🚨 MUST come first before any st.title() or st.markdown()
 st.set_page_config(page_title="Debt Dynamics Dashboard", page_icon="📊", layout="wide")
 
 st.title("📊 Debt Dynamics Dashboard")
